@@ -1,7 +1,7 @@
 #--------------------------------------------------------------
 # S3 terraform state policy
 #--------------------------------------------------------------
-data "aws_iam_policy_document" "remote_state_config" {
+data "aws_iam_policy_document" "this" {
   statement {
     sid = "1"
 
@@ -49,21 +49,21 @@ data "aws_iam_policy_document" "remote_state_config" {
   }
 }
 
-resource "aws_iam_policy" "remote_state_config" {
+resource "aws_iam_policy" "this" {
   name   = "${var.backend_bucket}_${replace(var.backend_path, "/", "_")}write_remote_state_s3_config"
-  policy = "${data.aws_iam_policy_document.remote_state_config.json}"
+  policy = "${data.aws_iam_policy_document.this.json}"
 }
 
 #--------------------------------------------------------------
 # S3 backend config
 #--------------------------------------------------------------
-resource "null_resource" "remote_state_config" {
+resource "null_resource" "this" {
   provisioner "local-exec" {
-    command = "echo \"${data.template_file.remote_state_config.rendered}\" > backend.tf"
+    command = "echo \"${data.template_file.this.rendered}\" > backend.tf"
   }
 }
 
-data "template_file" "remote_state_config" {
+data "template_file" "this" {
   template = "${file("${path.module}/templates/backend.tpl")}"
 
   vars {
@@ -91,3 +91,17 @@ data "template_file" "data_state_file" {
     backend_aws_profile = "${var.backend_aws_profile}"
   }
 }
+
+
+#--------------------------------------------------------------
+# Terraform backend file modifier groups
+#--------------------------------------------------------------
+
+resource "aws_iam_policy_attachment" "write" {
+  name       = "TerraformBackendAccess${replace(var.backend_path, "/", "_")}Write"
+  users      = "${var.backend_write_users}"
+  roles      = "${var.backend_write_roles}"
+  groups     = "${var.backend_write_groups}"
+  policy_arn = "${aws_iam_policy.this.arn}"
+}
+
