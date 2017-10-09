@@ -1,104 +1,32 @@
 #--------------------------------------------------------------
-# Create S3 bucket terraform state policy
+#  backend bucket
 #--------------------------------------------------------------
-data "aws_iam_policy_document" "this" {
-  statement {
-    sid = "1"
-
-    actions = [
-      "s3:ListAllMyBuckets",
-      "s3:GetBucketLocation",
-    ]
-
-    resources = [
-      "arn:aws:s3:::*",
-    ]
-  }
-
-  statement {
-    sid = "2"
-    actions = [
-      "s3:CreateBucket",
-    ]
-
-    resources = [
-      "arn:aws:s3:::*",
-    ]
-  }
-
-}
-
-resource "aws_iam_policy" "this" {
-  name   = "TerraformUserCreateBackendBucket_${var.terraform_backend_s3_bucket}"
-  policy = "${data.aws_iam_policy_document.this.json}"
-}
-
-resource "aws_iam_user_policy_attachment" "this" {
-  user       = "${var.aws_user_bucket_creator}"
-  policy_arn = "${aws_iam_policy.this.arn}"
-
-  provisioner "local-exec" {
-    command = "sleep 15"
-  }
+module "backend_bucket" {
+    source = "./modules/backend_bucket"
+    backend_bucket_user_creator = "${var.backend_bucket_user_creator}"
+    backend_bucket              = "${var.backend_bucket}"
+    backend_bucket_region       = "${var.backend_bucket_region}"
 }
 
 #--------------------------------------------------------------
-# S3 backend bucket
+#  backend access
 #--------------------------------------------------------------
+module "tfstate_config" {
+    source = "./modules/tfstate_config"
 
-resource "aws_s3_bucket" "this" {
-  bucket = "${var.terraform_backend_s3_bucket}"
-  acl    = "private"
-  region = "${var.terraform_backend_s3_bucket_aws_region}"
+    tfstate_write_users  = "${var.tfstate_write_users}"
+    tfstate_write_roles  = "${var.tfstate_write_roles}"
+    tfstate_write_groups = "${var.tfstate_write_groups}"
 
-  versioning {
-    enabled = true
-  }
 
-  depends_on = ["aws_iam_user_policy_attachment.this"]
+    backend_bucket       = "${module.backend_bucket.this_s3_bucket_id}"
+    backend_aws_profile  = "${var.backend_aws_profile}"
+    backend_aws_region   = "${var.backend_aws_region}"
 
-  provisioner "local-exec" {
-    command = "sleep 15"
-  }
+    tfstate_path = "${var.tfstate_path}"
+    workspace    = "${terraform.workspace}"
 }
 
-#--------------------------------------------------------------
-# S3 readonly_policy for terraform users
-#--------------------------------------------------------------
 
-data "aws_iam_policy_document" "readonly_policy" {
-  statement {
-    sid = "1"
 
-    actions = [
-      "s3:ListAllMyBuckets",
-      "s3:GetBucketLocation",
-    ]
-
-    resources = [
-      "arn:aws:s3:::*",
-    ]
-  }
-
-  statement {
-    actions = [
-      "s3:List*",
-      "s3:Get*",
-    ]
-
-    resources = [
-      "${aws_s3_bucket.this.arn}",
-      "${aws_s3_bucket.this.arn}/*",
-    ]
-  }
-}
-
-resource "aws_iam_policy" "readonly_policy" {
-  name   = "TerraformBackendS3BucketReadOnlyAccess_${var.terraform_backend_s3_bucket}"
-  policy = "${data.aws_iam_policy_document.readonly_policy.json}"
-}
-
-#--------------------------------------------------------------
-# config backend access
-#--------------------------------------------------------------
 
