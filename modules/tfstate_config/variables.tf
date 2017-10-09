@@ -13,22 +13,23 @@ variable "backend_bucket" {
   description = "S3 bucket name to store terraform state file"
 }
 
-variable "backend_path" {
+variable "tfstate_path" {
   default     = ""
   description = "terraform state file S3 key"
 }
 
-variable "backend_write_users" {
-  type    = "list"
+variable "tfstate_write_users" {
   default = []
 }
 
-variable "backend_write_roles" {
-  type    = "list"
+variable "tfstate_write_roles" {
   default = []
 }
 
-variable "backend_write_groups" {
-  type    = "list"
+variable "tfstate_write_groups" {
   default = []
+}
+
+variable "workspace" {
+  description = "terraform workspace"
 }
