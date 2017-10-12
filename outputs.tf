@@ -1,11 +1,21 @@
-output "this_iam_policy_write_access_arn" {
+output "this_iam_policy_write_access_global_arn" {
   description = "Terraform state write access IAM policy ARN"
-  value = "${module.tfstate_config.this_iam_policy_write_access_arn}"
+  value = "${module.tfstate_config.this_iam_policy_write_access_global_arn}"
 }
 
-output "this_iam_policy_write_access_name" {
+output "this_iam_policy_write_access_global_name" {
   description = "Terraform state write access IAM policy name"
-  value = "${module.tfstate_config.this_iam_policy_write_access_name}"
+  value = "${module.tfstate_config.this_iam_policy_write_access_global_name}"
+}
+
+output "this_iam_policy_write_access_workspace_arn" {
+  description = "Terraform state write access IAM policy ARN"
+  value = "${module.tfstate_config.this_iam_policy_write_access_workspace_arn}"
+}
+
+output "this_iam_policy_write_access_workspace_name" {
+  description = "Terraform state write access IAM policy name"
+  value = "${module.tfstate_config.this_iam_policy_write_access_workspace_name}"
 }
 
 output "this_s3_bucket_id" {

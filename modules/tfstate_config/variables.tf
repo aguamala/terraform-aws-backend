@@ -18,18 +18,7 @@ variable "tfstate_path" {
   description = "terraform state file S3 key"
 }
 
-variable "tfstate_write_users" {
-  default = []
-}
-
-variable "tfstate_write_roles" {
-  default = []
-}
-
-variable "tfstate_write_groups" {
-  default = []
-}
-
-variable "workspace" {
-  description = "terraform workspace"
+variable "terraform_remote_state" {
+  default     = "global"
+  description = "terraform_remote_state flag"
 }
