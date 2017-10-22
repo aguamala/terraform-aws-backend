@@ -9,7 +9,7 @@ module "backend_bucket" {
 }
 
 #--------------------------------------------------------------
-#  backend access
+#  tfstate config
 #--------------------------------------------------------------
 module "tfstate_config" {
     source = "./modules/tfstate_config"
@@ -21,22 +21,15 @@ module "tfstate_config" {
     tfstate_path = "${var.tfstate_path}"
 }
 
-resource "aws_iam_policy_attachment" "backend_access_global_service" {
-  count = "${terraform.workspace == "default" ? 1 : 0}"
-  name        = "TerraformBackendWriteAccess_${module.backend_bucket.this_s3_bucket_id}_${replace(var.tfstate_path, "/", "_")}"
-  users       = "${var.tfstate_write_users}"
-  roles       = "${var.tfstate_write_roles}"
-  groups      = "${var.tfstate_write_groups}"
-  policy_arn  = "${module.tfstate_config.this_iam_policy_write_access_global_arn}"
+#--------------------------------------------------------------
+#  tfstate access
+#--------------------------------------------------------------
+module "tfstate_access" {
+    source = "./modules/tfstate_access"
+
+    backend_bucket       = "${module.backend_bucket.this_s3_bucket_id}"
+    tfstate_path         = "${var.tfstate_path}"
+    tfstate_write_users  = "${var.tfstate_write_users}"
+    tfstate_write_roles  = "${var.tfstate_write_roles}"
+    tfstate_write_groups = "${var.tfstate_write_groups}"
 }
-
-resource "aws_iam_policy_attachment" "backend_access_workspace_service" {
-  count = "${terraform.workspace != "default" ? 1 : 0}"
-  name        = "TerraformBackendWriteAccess_${module.backend_bucket.this_s3_bucket_id}_${replace(var.tfstate_path, "/", "_")}_${terraform.workspace}"
-  users       = "${var.tfstate_write_users}"
-  roles       = "${var.tfstate_write_roles}"
-  groups      = "${var.tfstate_write_groups}"
-  policy_arn  = "${module.tfstate_config.this_iam_policy_write_access_workspace_arn}"
-}
-
-
