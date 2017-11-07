@@ -34,7 +34,7 @@ data "template_file" "terraform_remote_state_workspace" {
   vars {
     backend_bucket      = "${var.backend_bucket}"
     tfstate_key         = "${var.tfstate_path}terraform.tfstate"
-    tfstate_name        = "${replace(var.tfstate_path, "/", "_")}state"
+    tfstate_name        = "${replace(var.tfstate_path, "/", "_")}file"
     backend_aws_region  = "${var.backend_aws_region}"
     backend_aws_profile = "${var.backend_aws_profile}"
   }
@@ -55,7 +55,7 @@ data "template_file" "terraform_remote_state_global" {
   vars {
     backend_bucket      = "${var.backend_bucket}"
     tfstate_key         = "${var.tfstate_path}terraform.tfstate"
-    tfstate_name        = "${replace(var.tfstate_path, "/", "_")}state"
+    tfstate_name        = "${replace(var.tfstate_path, "/", "_")}file"
     backend_aws_region  = "${var.backend_aws_region}"
     backend_aws_profile = "${var.backend_aws_profile}"
   }
