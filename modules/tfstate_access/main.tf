@@ -12,30 +12,10 @@ data "aws_iam_policy_document" "this_write_access_global" {
     ]
 
     resources = [
-      "arn:aws:s3:::*",
+      "*",
     ]
   }
-
-  statement {
-    actions = [
-      "s3:ListBucket",
-    ]
-
-    resources = [
-      "arn:aws:s3:::${var.backend_bucket}",
-    ]
-
-    condition {
-      test     = "StringLike"
-      variable = "s3:prefix"
-
-      values = [
-        "",
-        "${var.tfstate_path}*",
-      ]
-    }
-  }
-
+  
   statement {
     actions = [
       "s3:List*",
@@ -44,7 +24,6 @@ data "aws_iam_policy_document" "this_write_access_global" {
     ]
 
     resources = [
-      "arn:aws:s3:::${var.backend_bucket}/${var.tfstate_path}",
       "arn:aws:s3:::${var.backend_bucket}/${var.tfstate_path}*",
     ]
   }
@@ -144,7 +123,6 @@ data "aws_iam_policy_document" "this_write_access_workspace" {
     ]
 
     resources = [
-      "arn:aws:s3:::${var.backend_bucket}/env:/${terraform.workspace}/${var.tfstate_path}",
       "arn:aws:s3:::${var.backend_bucket}/env:/${terraform.workspace}/${var.tfstate_path}*",
     ]
   }

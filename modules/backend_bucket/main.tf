@@ -25,16 +25,6 @@ data "aws_iam_policy_document" "this" {
     actions = [
       "s3:ListAllMyBuckets",
       "s3:GetBucketLocation",
-    ]
-
-    resources = [
-      "arn:aws:s3:::*",
-    ]
-  }
-
-  statement {
-    sid = "2"
-    actions = [
       "s3:List*",
       "s3:Get*",
       "s3:CreateBucket",
@@ -42,10 +32,9 @@ data "aws_iam_policy_document" "this" {
     ]
 
     resources = [
-      "arn:aws:s3:::*",
+      "*",
     ]
   }
-
 }
 
 resource "aws_iam_policy" "this" {
@@ -76,7 +65,7 @@ data "aws_iam_policy_document" "this_readonly_access" {
     ]
 
     resources = [
-      "arn:aws:s3:::*",
+      "*",
     ]
   }
 
@@ -87,7 +76,6 @@ data "aws_iam_policy_document" "this_readonly_access" {
     ]
 
     resources = [
-      "${aws_s3_bucket.this.arn}",
       "${aws_s3_bucket.this.arn}/*",
     ]
   }
